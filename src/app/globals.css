@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  background-color: #0d2137;
+  background-image: radial-gradient(
+      1100px 600px at 50% -10%,
+      rgba(196, 158, 90, 0.08),
+      transparent 60%
+    ),
+    radial-gradient(900px 500px at 90% 110%, rgba(26, 122, 138, 0.08), transparent 60%);
+  background-attachment: fixed;
+}
+
+/* Foco visivel e consistente para acessibilidade */
+:focus-visible {
+  outline: 2px solid #c49e5a;
+  outline-offset: 2px;
+}
+
+/* Marca d'agua folha discreta no fundo */
+.marca-folha::before {
+  content: "🌿";
+  position: fixed;
+  right: 4%;
+  bottom: 6%;
+  font-size: 9rem;
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
