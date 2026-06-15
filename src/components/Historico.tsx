@@ -29,7 +29,7 @@ export default function Historico({
       {aberto && (
         <>
           <motion.div
-            className="fixed inset-0 z-30 bg-black/50"
+            className="fixed inset-0 z-30 bg-serena-azul/30 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -37,7 +37,7 @@ export default function Historico({
             aria-hidden="true"
           />
           <motion.aside
-            className="fixed right-0 top-0 z-40 flex h-full w-[88%] max-w-sm flex-col bg-[#0b1d31] shadow-2xl"
+            className="fixed right-0 top-0 z-40 flex h-full w-[88%] max-w-sm flex-col bg-white shadow-2xl"
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
@@ -45,15 +45,15 @@ export default function Historico({
             role="dialog"
             aria-label="Histórico de sorteios"
           >
-            <div className="flex items-center justify-between border-b border-[#1d3b58] px-5 py-4">
-              <h2 className="font-title text-2xl font-semibold text-[#f4f1ea]">
+            <div className="flex items-center justify-between border-b border-[#eceae3] px-5 py-4">
+              <h2 className="font-title text-2xl font-semibold text-serena-azul">
                 Histórico
               </h2>
               <button
                 type="button"
                 onClick={onFechar}
                 aria-label="Fechar histórico"
-                className="rounded-full p-1.5 text-[#8aa0b5] transition hover:bg-[#13314c] hover:text-[#f4f1ea]"
+                className="rounded-full p-1.5 text-[#5d6f80] transition hover:bg-[#f3f1ec] hover:text-serena-azul"
               >
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                   <path
@@ -68,7 +68,7 @@ export default function Historico({
 
             <div className="flex-1 overflow-y-auto px-5 py-4">
               {itens.length === 0 ? (
-                <p className="mt-8 text-center text-sm text-[#7e93a8]">
+                <p className="mt-8 text-center text-sm text-[#8a98a6]">
                   Nenhum tema sorteado ainda. Gire a roleta para começar.
                 </p>
               ) : (
@@ -78,18 +78,18 @@ export default function Historico({
                       <button
                         type="button"
                         onClick={() => onEscolher(t)}
-                        className="flex w-full items-start gap-3 rounded-lg border border-[#1d3b58] bg-[#0f2640] p-3 text-left transition hover:border-serena-dourado/50"
+                        className="flex w-full items-start gap-3 rounded-xl border border-[#eceae3] bg-[#fbfaf7] p-3 text-left transition hover:border-serena-dourado/60"
                       >
                         <span
                           className="mt-1 h-3 w-3 shrink-0 rounded-full"
                           style={{ backgroundColor: CORES_PILAR[t.pilar] }}
                         />
                         <span>
-                          <span className="block text-sm font-medium text-[#e6ecf3]">
+                          <span className="block text-sm font-medium text-serena-azul">
                             {t.tema}
                           </span>
-                          <span className="mt-0.5 block text-xs text-[#7e93a8]">
-                            {t.pilar} · {t.formato}
+                          <span className="mt-0.5 block text-xs text-[#8a98a6]">
+                            {t.pilar}
                           </span>
                         </span>
                       </button>
@@ -100,11 +100,11 @@ export default function Historico({
             </div>
 
             {itens.length > 0 && (
-              <div className="border-t border-[#1d3b58] px-5 py-4">
+              <div className="border-t border-[#eceae3] px-5 py-4">
                 <button
                   type="button"
                   onClick={onLimpar}
-                  className="w-full rounded-full border border-[#8a5a3a] px-4 py-2.5 text-sm font-medium text-[#d6a884] transition hover:bg-[#8a5a3a]/15"
+                  className="w-full rounded-full border border-[#e0b9a0] px-4 py-2.5 text-sm font-medium text-[#b56a40] transition hover:bg-[#fbf1ea]"
                 >
                   Limpar histórico
                 </button>

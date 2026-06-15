@@ -5,6 +5,7 @@ import "./globals.css";
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
   weight: ["500", "600", "700"],
+  style: ["normal", "italic"],
   variable: "--font-cormorant",
   display: "swap",
 });
@@ -23,7 +24,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0d2137",
+  themeColor: "#ffffff",
   width: "device-width",
   initialScale: 1,
 };
@@ -35,7 +36,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR" className={`${cormorant.variable} ${dmSans.variable}`}>
-      <body className="min-h-screen bg-serena-azul font-body text-[#f4f1ea] antialiased">
+      <body className="min-h-screen bg-white font-body text-[#0d2137] antialiased">
         {children}
       </body>
     </html>

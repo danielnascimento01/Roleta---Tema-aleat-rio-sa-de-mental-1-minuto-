@@ -3,36 +3,76 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
+  --azul: #0d2137;
+  --azul-suave: #28435f;
+  --dourado: #c49e5a;
+  --dourado-escuro: #9c7c41;
+  --neblina: #5d6f80;
+  --linha: #e8e3d8;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background-color: #0d2137;
-  background-image: radial-gradient(
-      1100px 600px at 50% -10%,
-      rgba(196, 158, 90, 0.08),
-      transparent 60%
-    ),
-    radial-gradient(900px 500px at 90% 110%, rgba(26, 122, 138, 0.08), transparent 60%);
-  background-attachment: fixed;
+  background-color: #ffffff;
+  color: var(--azul);
 }
 
-/* Foco visivel e consistente para acessibilidade */
+::selection {
+  background: rgba(196, 158, 90, 0.28);
+  color: var(--azul);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(196, 158, 90, 0.35);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
 :focus-visible {
-  outline: 2px solid #c49e5a;
-  outline-offset: 2px;
+  outline: 2px solid var(--dourado);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
-/* Marca d'agua folha discreta no fundo */
-.marca-folha::before {
-  content: "🌿";
-  position: fixed;
-  right: 4%;
-  bottom: 6%;
-  font-size: 9rem;
-  opacity: 0.04;
-  pointer-events: none;
-  z-index: 0;
+/* Hairline editorial com gradiente dourado */
+.divisor {
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(196, 158, 90, 0.55),
+    transparent
+  );
+}
+
+/* Respiro pulsante do botao GIRAR quando ocioso */
+@keyframes respiro {
+  0%,
+  100% {
+    box-shadow:
+      0 8px 22px rgba(13, 33, 55, 0.28),
+      0 0 0 0 rgba(196, 158, 90, 0);
+  }
+  50% {
+    box-shadow:
+      0 10px 26px rgba(13, 33, 55, 0.32),
+      0 0 0 9px rgba(196, 158, 90, 0.14);
+  }
+}
+.respiro {
+  animation: respiro 3.4s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -40,6 +80,7 @@ body {
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }

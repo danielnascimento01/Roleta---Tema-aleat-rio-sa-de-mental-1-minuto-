@@ -42,9 +42,7 @@ export default function Cronometro({ mudo }: Props) {
   }, [rodando]);
 
   function iniciar() {
-    if (restante <= 0) {
-      setRestante(total);
-    }
+    if (restante <= 0) setRestante(total);
     fimRef.current = false;
     setRodando(true);
   }
@@ -67,7 +65,7 @@ export default function Cronometro({ mudo }: Props) {
   }
 
   const ultimos10 = restante <= 10 && restante > 0;
-  const corAnel = ultimos10 ? "#c49e5a" : "#1a7a8a";
+  const corAnel = ultimos10 ? "#c49e5a" : "#13b5c4";
   const progresso = total > 0 ? restante / total : 0;
   const offset = CIRC * (1 - progresso);
 
@@ -79,16 +77,16 @@ export default function Cronometro({ mudo }: Props) {
       : `${Math.ceil(restante)}`;
 
   return (
-    <div className="flex flex-col items-center gap-5">
-      <div className="relative h-72 w-72">
+    <div className="flex flex-col items-center gap-6">
+      <div className="relative h-60 w-60 sm:h-64 sm:w-64">
         <svg viewBox="0 0 300 300" className="h-full w-full -rotate-90">
           <circle
             cx="150"
             cy="150"
             r={RAIO}
             fill="none"
-            stroke="#13314c"
-            strokeWidth="16"
+            stroke="#eef1f4"
+            strokeWidth="14"
           />
           <circle
             cx="150"
@@ -96,7 +94,7 @@ export default function Cronometro({ mudo }: Props) {
             r={RAIO}
             fill="none"
             stroke={corAnel}
-            strokeWidth="16"
+            strokeWidth="14"
             strokeLinecap="round"
             strokeDasharray={CIRC}
             strokeDashoffset={offset}
@@ -106,13 +104,13 @@ export default function Cronometro({ mudo }: Props) {
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span
             className={`font-title text-6xl font-bold tabular-nums ${
-              ultimos10 ? "text-serena-dourado" : "text-[#f4f1ea]"
+              ultimos10 ? "text-serena-dourado" : "text-serena-azul"
             }`}
             aria-live="polite"
           >
             {texto}
           </span>
-          <span className="mt-1 text-xs uppercase tracking-widest text-[#8aa0b5]">
+          <span className="mt-1 text-[0.7rem] font-medium uppercase tracking-[0.25em] text-[#8a98a6]">
             {rodando ? "gravando" : restante <= 0 ? "fim" : "pronto"}
           </span>
         </div>
@@ -125,10 +123,10 @@ export default function Cronometro({ mudo }: Props) {
             type="button"
             onClick={() => trocarDuracao(d)}
             aria-pressed={total === d}
-            className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
+            className={`rounded-full px-4 py-1.5 text-sm font-semibold transition ${
               total === d
-                ? "bg-serena-dourado text-serena-azul"
-                : "bg-[#13314c] text-[#cdd8e3] hover:bg-[#1a3d5c]"
+                ? "bg-serena-azul text-white"
+                : "border border-[#dfe4ea] text-[#5d6f80] hover:border-serena-azul/30"
             }`}
           >
             {d}s
@@ -141,7 +139,7 @@ export default function Cronometro({ mudo }: Props) {
           <button
             type="button"
             onClick={iniciar}
-            className="rounded-full bg-serena-dourado px-6 py-2.5 font-semibold text-serena-azul transition hover:brightness-105"
+            className="rounded-full bg-serena-dourado px-7 py-2.5 font-semibold text-serena-azul shadow-sm transition hover:brightness-105"
           >
             {restante <= 0 ? "De novo" : restante === total ? "Iniciar" : "Continuar"}
           </button>
@@ -149,7 +147,7 @@ export default function Cronometro({ mudo }: Props) {
           <button
             type="button"
             onClick={pausar}
-            className="rounded-full border border-serena-dourado px-6 py-2.5 font-semibold text-serena-dourado transition hover:bg-serena-dourado/10"
+            className="rounded-full border-2 border-serena-dourado px-7 py-2.5 font-semibold text-serena-dourado transition hover:bg-serena-dourado/10"
           >
             Pausar
           </button>
@@ -157,7 +155,7 @@ export default function Cronometro({ mudo }: Props) {
         <button
           type="button"
           onClick={reiniciar}
-          className="rounded-full border border-[#2e5a7a] px-6 py-2.5 font-medium text-[#cdd8e3] transition hover:bg-[#13314c]"
+          className="rounded-full border border-[#dfe4ea] px-6 py-2.5 font-medium text-[#5d6f80] transition hover:border-serena-azul/30"
         >
           Reiniciar
         </button>

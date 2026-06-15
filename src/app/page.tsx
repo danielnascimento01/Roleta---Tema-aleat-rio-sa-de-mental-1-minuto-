@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import type { Pilar, Tema } from "@/data/temas";
 import Desafio from "@/components/Desafio";
-import Filtros from "@/components/Filtros";
 import Historico from "@/components/Historico";
 import Roleta from "@/components/Roleta";
 import { PILARES } from "@/lib/cores";
@@ -12,21 +12,11 @@ import {
   limparHistorico,
   registrarSorteio,
 } from "@/lib/historico";
-import type { Filtros as FiltrosTipo } from "@/lib/sorteio";
-import {
-  pilaresComTema,
-  sortearDireto,
-  sortearPorPilar,
-} from "@/lib/sorteio";
+import { sortearPorPilar } from "@/lib/sorteio";
 
-const FILTROS_INICIAIS: FiltrosTipo = {
-  apresentador: "Todos",
-  pilares: [...PILARES],
-  formato: "Todos",
-};
+const FILTROS_PADRAO = { apresentador: "Todos", formato: "Todos" } as const;
 
 export default function Home() {
-  const [filtros, setFiltros] = useState<FiltrosTipo>(FILTROS_INICIAIS);
   const [tema, setTema] = useState<Tema | null>(null);
   const [girando, setGirando] = useState(false);
   const [mudo, setMudo] = useState(false);
@@ -38,37 +28,26 @@ export default function Home() {
     setHistorico(lerHistorico());
   }, []);
 
-  // Pilares que estao ligados no filtro E tem ao menos um tema disponivel.
-  const pilaresAtivos = useMemo<Pilar[]>(() => {
-    const comTema = pilaresComTema(filtros);
-    return filtros.pilares.filter((p) => comTema.has(p));
-  }, [filtros]);
-
   function aoSortearTema(novo: Tema | null) {
     if (!novo) return;
     setTema(novo);
     setHistorico(registrarSorteio(novo.id));
     window.setTimeout(() => {
-      resultadoRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 80);
+      resultadoRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 90);
   }
 
   function aoResultadoRoleta(pilar: Pilar) {
     setGirando(false);
-    aoSortearTema(sortearPorPilar(pilar, filtros, historico));
-  }
-
-  function sortearDiretoHandler() {
-    if (girando) return;
-    aoSortearTema(sortearDireto(filtros, historico));
+    aoSortearTema(sortearPorPilar(pilar, FILTROS_PADRAO, historico));
   }
 
   function escolherDoHistorico(t: Tema) {
     setTema(t);
     setHistoricoAberto(false);
     window.setTimeout(() => {
-      resultadoRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 80);
+      resultadoRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 90);
   }
 
   function limpar() {
@@ -76,17 +55,20 @@ export default function Home() {
     setHistorico([]);
   }
 
-  const semPilares = pilaresAtivos.length === 0;
-
   return (
-    <main className="marca-folha relative mx-auto flex min-h-screen max-w-2xl flex-col gap-6 px-4 pb-16 pt-6 sm:px-6">
+    <main className="relative mx-auto flex min-h-screen max-w-xl flex-col gap-8 px-5 pb-16 pt-7 sm:px-6">
       {/* Cabecalho */}
-      <header className="flex items-start justify-between gap-3">
+      <motion.header
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="flex items-start justify-between gap-3"
+      >
         <div>
-          <h1 className="font-title text-3xl font-bold tracking-tight text-[#f4f1ea] sm:text-4xl">
+          <h1 className="font-title text-[2rem] font-bold leading-none tracking-tight text-serena-azul sm:text-[2.4rem]">
             Geração Serena <span aria-hidden="true">🌿</span>
           </h1>
-          <p className="mt-0.5 text-sm uppercase tracking-[0.2em] text-serena-dourado">
+          <p className="mt-1.5 text-[0.72rem] font-semibold uppercase tracking-[0.32em] text-serena-dourado">
             Roleta de Temas
           </p>
         </div>
@@ -97,7 +79,7 @@ export default function Home() {
             aria-pressed={mudo}
             aria-label={mudo ? "Ativar som" : "Silenciar som"}
             title={mudo ? "Som desligado" : "Som ligado"}
-            className="rounded-full border border-[#1d3b58] p-2.5 text-[#cdd8e3] transition hover:bg-[#13314c]"
+            className="rounded-full border border-[#e6e2d8] p-2.5 text-serena-azul transition hover:border-serena-dourado hover:text-serena-dourado"
           >
             {mudo ? (
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -115,7 +97,7 @@ export default function Home() {
             type="button"
             onClick={() => setHistoricoAberto(true)}
             aria-label="Abrir histórico"
-            className="rounded-full border border-[#1d3b58] p-2.5 text-[#cdd8e3] transition hover:bg-[#13314c]"
+            className="rounded-full border border-[#e6e2d8] p-2.5 text-serena-azul transition hover:border-serena-dourado hover:text-serena-dourado"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M12 8v4l3 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -124,36 +106,28 @@ export default function Home() {
             </svg>
           </button>
         </div>
-      </header>
+      </motion.header>
 
-      <Filtros filtros={filtros} onMudar={setFiltros} />
+      <div className="divisor" aria-hidden="true" />
 
-      <section className="flex flex-col items-center gap-4">
+      {/* Roleta, o coracao da pagina */}
+      <motion.section
+        initial={{ opacity: 0, scale: 0.94 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+        className="flex flex-col items-center pt-2"
+      >
         <Roleta
-          pilaresAtivos={pilaresAtivos}
+          pilaresAtivos={PILARES}
           girando={girando}
           mudo={mudo}
           onInicio={() => setGirando(true)}
           onResultado={aoResultadoRoleta}
         />
-        <button
-          type="button"
-          onClick={sortearDiretoHandler}
-          disabled={girando || semPilares}
-          className="rounded-full border border-serena-dourado/60 px-5 py-2.5 text-sm font-medium text-serena-dourado transition hover:bg-serena-dourado/10 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          Sortear tema direto
-        </button>
-        {semPilares && (
-          <p className="text-center text-sm text-[#d6a884]">
-            Nenhum tema com esses filtros. Ajuste o apresentador, o formato ou
-            ligue mais pilares.
-          </p>
-        )}
-      </section>
+      </motion.section>
 
-      <div ref={resultadoRef} className="scroll-mt-4">
-        {tema ? (
+      {tema && (
+        <div ref={resultadoRef} className="scroll-mt-6">
           <Desafio
             tema={tema}
             mudo={mudo}
@@ -162,21 +136,10 @@ export default function Home() {
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
           />
-        ) : (
-          <div className="rounded-2xl border border-dashed border-[#1d3b58] bg-[#0f2640]/40 px-6 py-10 text-center">
-            <p className="font-title text-2xl text-[#f4f1ea]">
-              Gire a roleta e encare o desafio
-            </p>
-            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-[#9fb2c5]">
-              A roleta sorteia um tema de saúde mental. Aí é com você: 60
-              segundos no relógio pra falar sobre ele, no improviso. Sem
-              roteiro, do jeito Geração Serena.
-            </p>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
-      <footer className="mt-auto pt-4 text-center text-xs text-[#5f7790]">
+      <footer className="mt-auto pt-6 text-center text-[0.7rem] leading-relaxed text-[#9aa6b2]">
         Conteúdo educativo sobre controle e manejo da ansiedade. Não substitui
         avaliação profissional.
       </footer>
