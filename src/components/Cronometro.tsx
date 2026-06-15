@@ -78,7 +78,7 @@ export default function Cronometro({ mudo }: Props) {
 
   return (
     <div className="flex flex-col items-center gap-6">
-      <div className="relative h-60 w-60 sm:h-64 sm:w-64">
+      <div className="relative h-64 w-64 sm:h-72 sm:w-72">
         <svg viewBox="0 0 300 300" className="h-full w-full -rotate-90">
           <circle
             cx="150"
@@ -103,14 +103,14 @@ export default function Cronometro({ mudo }: Props) {
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span
-            className={`font-title text-6xl font-bold tabular-nums ${
+            className={`font-body text-[5rem] font-extrabold leading-none tabular-nums tracking-tight sm:text-[6rem] ${
               ultimos10 ? "text-serena-dourado" : "text-serena-azul"
             }`}
             aria-live="polite"
           >
             {texto}
           </span>
-          <span className="mt-1 text-[0.7rem] font-medium uppercase tracking-[0.25em] text-[#8a98a6]">
+          <span className="mt-2 text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-[#8a98a6]">
             {rodando ? "gravando" : restante <= 0 ? "fim" : "pronto"}
           </span>
         </div>

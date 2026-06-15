@@ -49,7 +49,7 @@ export default function Desafio({ tema, mudo, onGirarDeNovo }: Props) {
       <p className="text-[0.7rem] font-semibold uppercase tracking-[0.3em] text-serena-dourado">
         Seu tema
       </p>
-      <h2 className="mx-auto mt-3 max-w-xl font-title text-[2rem] font-bold leading-[1.12] text-serena-azul sm:text-[2.6rem]">
+      <h2 className="mx-auto mt-3 max-w-xl font-body text-[1.7rem] font-bold leading-[1.18] text-serena-azul sm:text-[2.1rem]">
         {tema.tema}
       </h2>
       <p className="mx-auto mt-4 max-w-sm text-sm leading-relaxed text-[#5d6f80]">
