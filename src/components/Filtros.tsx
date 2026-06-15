@@ -1,6 +1,6 @@
 "use client";
 
-import type { Apresentador, Formato, Pilar } from "@/data/temas";
+import type { Apresentador, Pilar } from "@/data/temas";
 import { CORES_PILAR, PILARES } from "@/lib/cores";
 import type { Filtros as FiltrosTipo } from "@/lib/sorteio";
 
@@ -9,15 +9,6 @@ const APRESENTADORES: (Apresentador | "Todos")[] = [
   "Carlos",
   "Henrique",
   "Marina",
-];
-
-const FORMATOS: (Formato | "Todos")[] = [
-  "Todos",
-  "Explicação",
-  "Técnica",
-  "Mito vs Verdade",
-  "Pergunta de paciente",
-  "Gancho",
 ];
 
 interface Props {
@@ -87,29 +78,6 @@ export default function Filtros({ filtros, onMudar }: Props) {
               </button>
             );
           })}
-        </div>
-      </div>
-
-      <div>
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-serena-dourado">
-          Formato
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {FORMATOS.map((f) => (
-            <button
-              key={f}
-              type="button"
-              aria-pressed={filtros.formato === f}
-              onClick={() => onMudar({ ...filtros, formato: f })}
-              className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition ${
-                filtros.formato === f
-                  ? "bg-serena-dourado text-serena-azul"
-                  : "bg-[#13314c] text-[#cdd8e3] hover:bg-[#1a3d5c]"
-              }`}
-            >
-              {f}
-            </button>
-          ))}
         </div>
       </div>
     </div>

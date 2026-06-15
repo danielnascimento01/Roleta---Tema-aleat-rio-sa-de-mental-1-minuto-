@@ -1,10 +1,9 @@
 # Roleta Serena 🌿
 
-Máquina de ideias de conteúdo de saúde mental da marca **Geração Serena**.
-O app sorteia, por uma roleta giratória, um tema para os apresentadores
-gravarem um Reels curto, e já abre um cartão com gancho, pilar, formato,
-apresentador sugerido, mini-roteiro de 60 segundos e um cronômetro
-regressivo integrado.
+Máquina de ideias de conteúdo de saúde mental da marca **Geração Serena**,
+no formato desafio: a roleta sorteia **um tema** e os apresentadores têm
+**60 segundos no relógio pra falar sobre ele, no improviso**. Sem roteiro,
+sem instrução de gravação. Gira, cai o tema, o cronômetro corre.
 
 ## Stack
 
@@ -42,14 +41,14 @@ vercel --prod   # produção
 ## Funcionalidades
 
 - Roleta com um gomo por pilar (Corpo, Mente, Cérebro, Energia, Vida,
-  Engajamento). Ao parar num pilar, sorteia um tema aleatório daquele pilar.
+  Engajamento). Ao parar num pilar, sorteia **um tema** aleatório daquele
+  pilar e mostra só o tema, nada de roteiro.
 - Botão **Sortear tema direto** para sortear de todo o banco de uma vez.
-- Filtros por **apresentador**, **pilar** (multiseleção, liga e desliga
-  gomos) e **formato**.
-- Cartão do tema com gancho, etiquetas, apresentador e mini-roteiro de 60s
-  gerado por template de formato.
-- Cronômetro de 60s integrado, com iniciar, pausar, reiniciar, seletor de
-  duração (30s, 60s, 90s) e aviso visual e sonoro nos últimos 10 segundos.
+- Filtros por **apresentador** e por **pilar** (multiseleção, liga e desliga
+  gomos da roleta).
+- Cronômetro de 60s integrado ao tema, com iniciar, pausar, reiniciar,
+  seletor de duração (30s, 60s, 90s) e aviso visual e sonoro nos últimos 10
+  segundos.
 - Histórico anti-repetição em `localStorage` (últimos 30 temas), com gaveta
   de histórico e botão de limpar.
 - Som discreto e desligável (clique do giro e sinal de fim).
@@ -67,13 +66,17 @@ no mesmo formato:
 ```ts
 {
   id: 205,                       // próximo id sequencial
-  tema: "Título curto do tema",  // aparece grande no cartão
-  gancho: "Frase de abertura falada, sem travessão",
+  tema: "Título curto do tema",  // o que aparece grande na tela do desafio
+  gancho: "Anotação interna, não é exibida no app",
   pilar: "Corpo",                // Corpo | Mente | Cérebro | Energia | Vida | Engajamento
   apresentador: "Carlos",        // Carlos | Henrique | Marina | Qualquer
   formato: "Explicação",         // Explicação | Técnica | Mito vs Verdade | Pergunta de paciente | Gancho
 }
 ```
+
+Só o campo `tema` aparece na tela. Os campos `gancho` e `formato` são
+metadados internos: ficam no banco para organização, mas o app mostra
+apenas o tema sorteado e o cronômetro.
 
 ### Regras editoriais (obrigatórias em todo texto)
 
@@ -84,6 +87,3 @@ no mesmo formato:
 4. Nunca usar o título "Psiquiatra" para o Dr. Henrique.
 5. Sem clichês de coaching e sem linguagem de biohacking.
 6. Tom direto, firme, humano e científico. Acolhimento sem infantilizar.
-
-O mini-roteiro de cada formato é gerado em `src/lib/roteiro.ts`. Para mudar
-a estrutura dos 60 segundos, edite os templates por formato nesse arquivo.

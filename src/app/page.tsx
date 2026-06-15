@@ -2,8 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Pilar, Tema } from "@/data/temas";
-import CartaoTema from "@/components/CartaoTema";
-import Cronometro from "@/components/Cronometro";
+import Desafio from "@/components/Desafio";
 import Filtros from "@/components/Filtros";
 import Historico from "@/components/Historico";
 import Roleta from "@/components/Roleta";
@@ -30,7 +29,6 @@ export default function Home() {
   const [filtros, setFiltros] = useState<FiltrosTipo>(FILTROS_INICIAIS);
   const [tema, setTema] = useState<Tema | null>(null);
   const [girando, setGirando] = useState(false);
-  const [gravando, setGravando] = useState(false);
   const [mudo, setMudo] = useState(false);
   const [historico, setHistorico] = useState<number[]>([]);
   const [historicoAberto, setHistoricoAberto] = useState(false);
@@ -49,7 +47,6 @@ export default function Home() {
   function aoSortearTema(novo: Tema | null) {
     if (!novo) return;
     setTema(novo);
-    setGravando(false);
     setHistorico(registrarSorteio(novo.id));
     window.setTimeout(() => {
       resultadoRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -68,7 +65,6 @@ export default function Home() {
 
   function escolherDoHistorico(t: Tema) {
     setTema(t);
-    setGravando(false);
     setHistoricoAberto(false);
     window.setTimeout(() => {
       resultadoRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -157,31 +153,24 @@ export default function Home() {
       </section>
 
       <div ref={resultadoRef} className="scroll-mt-4">
-        {gravando && tema ? (
-          <div className="rounded-2xl border border-serena-dourado/30 bg-[#102a45]/80 p-6 sm:p-8">
-            <p className="mb-5 text-center font-title text-2xl text-[#f4f1ea]">
-              {tema.tema}
-            </p>
-            <Cronometro mudo={mudo} onFechar={() => setGravando(false)} />
-          </div>
-        ) : tema ? (
-          <CartaoTema
+        {tema ? (
+          <Desafio
             tema={tema}
+            mudo={mudo}
             onGirarDeNovo={() => {
               setTema(null);
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            onIniciarGravacao={() => setGravando(true)}
           />
         ) : (
           <div className="rounded-2xl border border-dashed border-[#1d3b58] bg-[#0f2640]/40 px-6 py-10 text-center">
             <p className="font-title text-2xl text-[#f4f1ea]">
-              Gire a roleta e comece a gravar
+              Gire a roleta e encare o desafio
             </p>
             <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-[#9fb2c5]">
-              A roleta sorteia um pilar, abre um tema de saúde mental com gancho,
-              roteiro de 60 segundos e cronômetro pronto pra gravação. Direto,
-              firme e humano, do jeito Geração Serena.
+              A roleta sorteia um tema de saúde mental. Aí é com você: 60
+              segundos no relógio pra falar sobre ele, no improviso. Sem
+              roteiro, do jeito Geração Serena.
             </p>
           </div>
         )}

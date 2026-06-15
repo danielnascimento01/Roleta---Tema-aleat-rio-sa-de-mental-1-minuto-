@@ -8,12 +8,11 @@ const CIRC = 2 * Math.PI * RAIO;
 
 interface Props {
   mudo: boolean;
-  onFechar: () => void;
 }
 
 const DURACOES = [30, 60, 90];
 
-export default function Cronometro({ mudo, onFechar }: Props) {
+export default function Cronometro({ mudo }: Props) {
   const [total, setTotal] = useState(60);
   const [restante, setRestante] = useState(60);
   const [rodando, setRodando] = useState(false);
@@ -163,14 +162,6 @@ export default function Cronometro({ mudo, onFechar }: Props) {
           Reiniciar
         </button>
       </div>
-
-      <button
-        type="button"
-        onClick={onFechar}
-        className="text-sm text-[#8aa0b5] underline-offset-4 hover:underline"
-      >
-        Voltar ao tema
-      </button>
     </div>
   );
 }
