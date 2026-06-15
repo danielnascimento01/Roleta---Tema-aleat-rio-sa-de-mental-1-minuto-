@@ -56,7 +56,7 @@ vercel --prod   # produção
 ## Identidade visual
 
 - Azul profundo `#0d2137`, dourado `#c49e5a` e apoios sóbrios por pilar.
-- Títulos em **Cormorant Garamond**, corpo em **DM Sans** (via `next/font`).
+- Toda a tipografia em **DM Sans** (via `next/font`), inclusive a logomarca.
 
 ## Como expandir o banco de temas
 

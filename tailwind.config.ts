@@ -18,7 +18,7 @@ const config: Config = {
         },
       },
       fontFamily: {
-        title: ["var(--font-cormorant)", "serif"],
+        title: ["var(--font-dmsans)", "sans-serif"],
         body: ["var(--font-dmsans)", "sans-serif"],
       },
       keyframes: {
