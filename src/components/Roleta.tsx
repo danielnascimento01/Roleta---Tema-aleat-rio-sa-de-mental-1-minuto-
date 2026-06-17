@@ -1,22 +1,22 @@
 "use client";
 
-import {
-  animate,
-  motion,
-  useMotionValue,
-  useTransform,
-  type MotionValue,
-} from "framer-motion";
+import { animate, motion, useMotionValue } from "framer-motion";
 import { useCallback, useRef, useState } from "react";
 import type { Pilar } from "@/data/temas";
-import { CORES_PILAR, PILARES, TEXTO_SOBRE_PILAR } from "@/lib/cores";
+import { CORES_PILAR, PILARES } from "@/lib/cores";
 import { clique } from "@/lib/som";
 
 const CX = 150;
 const CY = 150;
 const R = 138;
-const LABEL_R = 92;
-const PASSO = 360 / PILARES.length; // 60: a roda mostra sempre os 6 pilares
+const FATIAS = 24; // muitas subdivisoes, estilo roleta de premios
+const PASSO = 360 / FATIAS; // 15
+
+// Pilar e cor de cada fatia: cicla os 6 pilares para alternar as cores
+// vivas e garantir contraste entre fatias vizinhas.
+function pilarDaFatia(i: number): Pilar {
+  return PILARES[i % PILARES.length];
+}
 
 function ponto(anguloGraus: number, raio: number) {
   const rad = (anguloGraus * Math.PI) / 180;
@@ -29,46 +29,6 @@ function caminhoSetor(indice: number): string {
   const p1 = ponto(inicio, R);
   const p2 = ponto(fim, R);
   return `M ${CX} ${CY} L ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} A ${R} ${R} 0 0 1 ${p2.x.toFixed(2)} ${p2.y.toFixed(2)} Z`;
-}
-
-// Rotulo de um pilar. Orbita com a roda (a posicao gira), porem fica
-// sempre em pe (nunca de cabeca pra baixo), pois nao herda a rotacao.
-function Rotulo({
-  rotacao,
-  indice,
-  pilar,
-  ativo,
-}: {
-  rotacao: MotionValue<number>;
-  indice: number;
-  pilar: Pilar;
-  ativo: boolean;
-}) {
-  const centro = indice * PASSO + PASSO / 2;
-  const x = useTransform(
-    rotacao,
-    (r) => CX + LABEL_R * Math.sin(((centro + r) * Math.PI) / 180)
-  );
-  const y = useTransform(
-    rotacao,
-    (r) => CY - LABEL_R * Math.cos(((centro + r) * Math.PI) / 180)
-  );
-  return (
-    <motion.text
-      x={x}
-      y={y}
-      textAnchor="middle"
-      dominantBaseline="middle"
-      fontSize="13"
-      fontWeight="700"
-      letterSpacing="0.2"
-      fill={TEXTO_SOBRE_PILAR[pilar]}
-      opacity={ativo ? 1 : 0.55}
-      style={{ fontFamily: "var(--font-dmsans), sans-serif" }}
-    >
-      {pilar}
-    </motion.text>
-  );
 }
 
 interface Props {
@@ -90,16 +50,14 @@ export default function Roleta({
   const atual = useRef(0);
   const [foco, setFoco] = useState<number | null>(null);
 
-  const ehAtivo = useCallback((p: Pilar) => ativos.includes(p), [ativos]);
-
   const tocarCliques = useCallback(
     (duracaoMs: number) => {
       if (mudo) return;
       let t = 0;
-      let intervalo = 70;
+      let intervalo = 55;
       while (t < duracaoMs) {
         window.setTimeout(() => clique(), t);
-        intervalo += 18;
+        intervalo += 14;
         t += intervalo;
       }
     },
@@ -109,13 +67,20 @@ export default function Roleta({
   const girar = useCallback(async () => {
     if (girando || ativos.length === 0) return;
 
-    // sorteia entre os temas escolhidos, mas a roda mostra todas as cores
+    // sorteia o tema entre os escolhidos, depois escolhe uma das fatias
+    // daquele pilar para o ponteiro parar.
     const alvo = ativos[Math.floor(Math.random() * ativos.length)];
-    const indice = PILARES.indexOf(alvo);
+    const idxPilar = PILARES.indexOf(alvo);
+    const fatiasDoAlvo: number[] = [];
+    for (let i = 0; i < FATIAS; i++) {
+      if (i % PILARES.length === idxPilar) fatiasDoAlvo.push(i);
+    }
+    const fatia =
+      fatiasDoAlvo[Math.floor(Math.random() * fatiasDoAlvo.length)];
     setFoco(null);
 
-    const centro = indice * PASSO + PASSO / 2;
-    const jitter = (Math.random() - 0.5) * (PASSO * 0.6);
+    const centro = fatia * PASSO + PASSO / 2;
+    const jitter = (Math.random() - 0.5) * (PASSO * 0.5);
     const destinoMod = (360 - centro - jitter + 360) % 360;
 
     const atualMod = ((atual.current % 360) + 360) % 360;
@@ -134,7 +99,7 @@ export default function Roleta({
       ease: [0.34, 0.0, 0.16, 1],
     });
 
-    setFoco(indice);
+    setFoco(fatia);
     onResultado(alvo);
   }, [ativos, girando, onInicio, onResultado, rotacao, tocarCliques]);
 
@@ -182,8 +147,8 @@ export default function Roleta({
               <stop offset="1" stopColor="#9c7c41" />
             </linearGradient>
             <radialGradient id="brilhoGomo" cx="0.5" cy="0.32" r="0.7">
-              <stop offset="0" stopColor="#ffffff" stopOpacity="0.22" />
-              <stop offset="0.5" stopColor="#ffffff" stopOpacity="0.04" />
+              <stop offset="0" stopColor="#ffffff" stopOpacity="0.2" />
+              <stop offset="0.5" stopColor="#ffffff" stopOpacity="0.03" />
               <stop offset="1" stopColor="#ffffff" stopOpacity="0" />
             </radialGradient>
           </defs>
@@ -199,21 +164,39 @@ export default function Roleta({
             opacity="0.85"
           />
 
-          {PILARES.map((pilar, i) => (
+          {Array.from({ length: FATIAS }, (_, i) => (
             <path
-              key={pilar}
+              key={i}
               d={caminhoSetor(i)}
-              fill={CORES_PILAR[pilar]}
+              fill={CORES_PILAR[pilarDaFatia(i)]}
               stroke="#ffffff"
-              strokeWidth="2"
-              opacity={ehAtivo(pilar) ? 1 : 0.82}
+              strokeWidth="1.5"
               style={{
                 filter:
-                  foco === i ? "brightness(1.12) saturate(1.15)" : undefined,
+                  foco === i ? "brightness(1.18) saturate(1.2)" : undefined,
                 transition: "filter 0.25s",
               }}
             />
           ))}
+
+          {/* marcas finas no aro, reforcando as muitas divisoes */}
+          {Array.from({ length: FATIAS }, (_, i) => {
+            const a = i * PASSO;
+            const p1 = ponto(a, R);
+            const p2 = ponto(a, R + 6);
+            return (
+              <line
+                key={`t-${i}`}
+                x1={p1.x}
+                y1={p1.y}
+                x2={p2.x}
+                y2={p2.y}
+                stroke="#ffffff"
+                strokeWidth="1.5"
+                opacity="0.7"
+              />
+            );
+          })}
 
           <circle cx={CX} cy={CY} r={R} fill="url(#brilhoGomo)" pointerEvents="none" />
 
@@ -222,22 +205,6 @@ export default function Roleta({
           <circle cx={CX} cy={CY} r="34" fill="#0d2137" />
         </svg>
       </motion.div>
-
-      <svg
-        viewBox="0 0 300 300"
-        className="pointer-events-none absolute inset-0 h-full w-full"
-        aria-hidden="true"
-      >
-        {PILARES.map((pilar, i) => (
-          <Rotulo
-            key={pilar}
-            rotacao={rotacao}
-            indice={i}
-            pilar={pilar}
-            ativo={ehAtivo(pilar)}
-          />
-        ))}
-      </svg>
 
       <button
         type="button"

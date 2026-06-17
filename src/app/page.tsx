@@ -160,7 +160,10 @@ export default function Home() {
               ativos={selecionados}
               girando={girando}
               mudo={mudo}
-              onInicio={() => setGirando(true)}
+              onInicio={() => {
+                setGirando(true);
+                setTema(null);
+              }}
               onResultado={aoResultadoRoleta}
             />
           </motion.section>
