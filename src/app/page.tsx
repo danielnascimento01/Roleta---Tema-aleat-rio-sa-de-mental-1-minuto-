@@ -157,7 +157,7 @@ export default function Home() {
             className="flex flex-col items-center pt-1"
           >
             <Roleta
-              pilares={selecionados}
+              ativos={selecionados}
               girando={girando}
               mudo={mudo}
               onInicio={() => setGirando(true)}
