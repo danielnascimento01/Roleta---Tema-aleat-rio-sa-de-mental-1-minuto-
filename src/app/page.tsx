@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import type { Pilar, Tema } from "@/data/temas";
 import Desafio from "@/components/Desafio";
+import Escolha from "@/components/Escolha";
 import Historico from "@/components/Historico";
 import Roleta from "@/components/Roleta";
 import { PILARES } from "@/lib/cores";
@@ -16,7 +17,11 @@ import { sortearPorPilar } from "@/lib/sorteio";
 
 const FILTROS_PADRAO = { apresentador: "Todos", formato: "Todos" } as const;
 
+type Etapa = "escolha" | "roleta";
+
 export default function Home() {
+  const [etapa, setEtapa] = useState<Etapa>("escolha");
+  const [selecionados, setSelecionados] = useState<Pilar[]>([...PILARES]);
   const [tema, setTema] = useState<Tema | null>(null);
   const [girando, setGirando] = useState(false);
   const [mudo, setMudo] = useState(false);
@@ -42,8 +47,22 @@ export default function Home() {
     aoSortearTema(sortearPorPilar(pilar, FILTROS_PADRAO, historico));
   }
 
+  function irParaRoleta() {
+    setTema(null);
+    setEtapa("roleta");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function voltarParaEscolha() {
+    setTema(null);
+    setGirando(false);
+    setEtapa("escolha");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   function escolherDoHistorico(t: Tema) {
     setTema(t);
+    setEtapa("roleta");
     setHistoricoAberto(false);
     window.setTimeout(() => {
       resultadoRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -57,7 +76,6 @@ export default function Home() {
 
   return (
     <main className="relative mx-auto flex min-h-screen max-w-xl flex-col gap-8 px-5 pb-16 pt-7 sm:px-6">
-      {/* Cabecalho */}
       <motion.header
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -65,7 +83,7 @@ export default function Home() {
         className="flex items-start justify-between gap-3"
       >
         <div>
-          <h1 className="font-title text-[2rem] font-bold leading-none tracking-tight text-serena-azul sm:text-[2.4rem]">
+          <h1 className="text-[2rem] font-bold leading-none tracking-tight text-serena-azul sm:text-[2.4rem]">
             Geração Serena <span aria-hidden="true">🌿</span>
           </h1>
           <p className="mt-1.5 text-[0.72rem] font-semibold uppercase tracking-[0.32em] text-serena-dourado">
@@ -110,33 +128,56 @@ export default function Home() {
 
       <div className="divisor" aria-hidden="true" />
 
-      {/* Roleta, o coracao da pagina */}
-      <motion.section
-        initial={{ opacity: 0, scale: 0.94 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-        className="flex flex-col items-center pt-2"
-      >
-        <Roleta
-          pilaresAtivos={PILARES}
-          girando={girando}
-          mudo={mudo}
-          onInicio={() => setGirando(true)}
-          onResultado={aoResultadoRoleta}
+      {etapa === "escolha" ? (
+        <Escolha
+          selecionados={selecionados}
+          onMudar={setSelecionados}
+          onConfirmar={irParaRoleta}
         />
-      </motion.section>
+      ) : (
+        <>
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              onClick={voltarParaEscolha}
+              className="inline-flex items-center gap-1.5 rounded-full border border-[#e6e2d8] px-4 py-2 text-sm font-medium text-[#5d6f80] transition hover:border-serena-dourado hover:text-serena-dourado"
+            >
+              <span aria-hidden="true">‹</span> Trocar temas
+            </button>
+            <span className="text-xs font-medium text-[#9aa6b2]">
+              {selecionados.length}{" "}
+              {selecionados.length === 1 ? "tema" : "temas"} na roleta
+            </span>
+          </div>
 
-      {tema && (
-        <div ref={resultadoRef} className="scroll-mt-6">
-          <Desafio
-            tema={tema}
-            mudo={mudo}
-            onGirarDeNovo={() => {
-              setTema(null);
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-          />
-        </div>
+          <motion.section
+            initial={{ opacity: 0, scale: 0.94 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-col items-center pt-1"
+          >
+            <Roleta
+              pilares={selecionados}
+              girando={girando}
+              mudo={mudo}
+              onInicio={() => setGirando(true)}
+              onResultado={aoResultadoRoleta}
+            />
+          </motion.section>
+
+          {tema && (
+            <div ref={resultadoRef} className="scroll-mt-6">
+              <Desafio
+                tema={tema}
+                mudo={mudo}
+                onGirarDeNovo={() => {
+                  setTema(null);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+              />
+            </div>
+          )}
+        </>
       )}
 
       <footer className="mt-auto pt-6 text-center text-[0.7rem] leading-relaxed text-[#9aa6b2]">

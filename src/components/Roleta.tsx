@@ -9,51 +9,50 @@ import {
 } from "framer-motion";
 import { useCallback, useRef, useState } from "react";
 import type { Pilar } from "@/data/temas";
-import { CORES_PILAR, PILARES, TEXTO_SOBRE_PILAR } from "@/lib/cores";
+import { CORES_PILAR, TEXTO_SOBRE_PILAR } from "@/lib/cores";
 import { clique } from "@/lib/som";
 
 const CX = 150;
 const CY = 150;
 const R = 138;
-const LABEL_R = 90;
-const SETORES = PILARES.length; // 6
-const PASSO = 360 / SETORES; // 60
+const LABEL_R = 92;
 
-// Ponto na circunferencia para um angulo em graus, horario a partir do topo.
 function ponto(anguloGraus: number, raio: number) {
   const rad = (anguloGraus * Math.PI) / 180;
   return { x: CX + raio * Math.sin(rad), y: CY - raio * Math.cos(rad) };
 }
 
-function caminhoSetor(indice: number): string {
-  const inicio = indice * PASSO;
-  const fim = inicio + PASSO;
+function caminhoSetor(indice: number, passo: number): string {
+  const inicio = indice * passo;
+  const fim = inicio + passo;
   const p1 = ponto(inicio, R);
   const p2 = ponto(fim, R);
-  return `M ${CX} ${CY} L ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} A ${R} ${R} 0 0 1 ${p2.x.toFixed(2)} ${p2.y.toFixed(2)} Z`;
+  const grande = passo > 180 ? 1 : 0;
+  return `M ${CX} ${CY} L ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} A ${R} ${R} 0 ${grande} 1 ${p2.x.toFixed(2)} ${p2.y.toFixed(2)} Z`;
 }
 
-// Rotulo de um pilar. Acompanha a roda (a posicao gira com ela), porem
-// fica sempre em pe (nunca de cabeca pra baixo), pois nao herda a rotacao.
+// Rotulo de um pilar. Orbita com a roda (a posicao gira), porem fica
+// sempre em pe (nunca de cabeca pra baixo), pois nao herda a rotacao.
 function Rotulo({
   rotacao,
   indice,
+  passo,
   pilar,
-  ativo,
 }: {
   rotacao: MotionValue<number>;
   indice: number;
+  passo: number;
   pilar: Pilar;
-  ativo: boolean;
 }) {
-  const centro = indice * PASSO + PASSO / 2;
+  const centro = indice * passo + passo / 2;
+  const raio = passo >= 360 ? 0 : LABEL_R;
   const x = useTransform(
     rotacao,
-    (r) => CX + LABEL_R * Math.sin(((centro + r) * Math.PI) / 180)
+    (r) => CX + raio * Math.sin(((centro + r) * Math.PI) / 180)
   );
   const y = useTransform(
     rotacao,
-    (r) => CY - LABEL_R * Math.cos(((centro + r) * Math.PI) / 180)
+    (r) => CY - raio * Math.cos(((centro + r) * Math.PI) / 180)
   );
   return (
     <motion.text
@@ -65,7 +64,6 @@ function Rotulo({
       fontWeight="700"
       letterSpacing="0.2"
       fill={TEXTO_SOBRE_PILAR[pilar]}
-      opacity={ativo ? 1 : 0.4}
       style={{ fontFamily: "var(--font-dmsans), sans-serif" }}
     >
       {pilar}
@@ -74,7 +72,7 @@ function Rotulo({
 }
 
 interface Props {
-  pilaresAtivos: Pilar[];
+  pilares: Pilar[]; // gomos exibidos (todos sorteaveis)
   girando: boolean;
   mudo: boolean;
   onInicio: () => void;
@@ -82,7 +80,7 @@ interface Props {
 }
 
 export default function Roleta({
-  pilaresAtivos,
+  pilares,
   girando,
   mudo,
   onInicio,
@@ -92,10 +90,8 @@ export default function Roleta({
   const atual = useRef(0);
   const [foco, setFoco] = useState<number | null>(null);
 
-  const ativo = useCallback(
-    (p: Pilar) => pilaresAtivos.includes(p),
-    [pilaresAtivos]
-  );
+  const n = pilares.length;
+  const passo = n > 0 ? 360 / n : 360;
 
   const tocarCliques = useCallback(
     (duracaoMs: number) => {
@@ -112,15 +108,14 @@ export default function Roleta({
   );
 
   const girar = useCallback(async () => {
-    if (girando) return;
-    if (pilaresAtivos.length === 0) return;
+    if (girando || n === 0) return;
 
-    const alvo = pilaresAtivos[Math.floor(Math.random() * pilaresAtivos.length)];
-    const indice = PILARES.indexOf(alvo);
+    const indice = Math.floor(Math.random() * n);
+    const alvo = pilares[indice];
     setFoco(null);
 
-    const centro = indice * PASSO + PASSO / 2;
-    const jitter = (Math.random() - 0.5) * (PASSO * 0.6);
+    const centro = indice * passo + passo / 2;
+    const jitter = (Math.random() - 0.5) * (passo * 0.6);
     const destinoMod = (360 - centro - jitter + 360) % 360;
 
     const atualMod = ((atual.current % 360) + 360) % 360;
@@ -141,11 +136,10 @@ export default function Roleta({
 
     setFoco(indice);
     onResultado(alvo);
-  }, [girando, onInicio, onResultado, pilaresAtivos, rotacao, tocarCliques]);
+  }, [girando, n, onInicio, onResultado, passo, pilares, rotacao, tocarCliques]);
 
   return (
     <div className="relative mx-auto aspect-square w-full max-w-[19rem] select-none sm:max-w-[22rem]">
-      {/* Halo dourado suave atras da roda */}
       <div
         className="pointer-events-none absolute inset-[-8%] rounded-full opacity-60 blur-2xl"
         style={{
@@ -155,7 +149,6 @@ export default function Roleta({
         aria-hidden="true"
       />
 
-      {/* Ponteiro fixo no topo */}
       <div
         className="pointer-events-none absolute left-1/2 top-[-10px] z-20 -translate-x-1/2"
         aria-hidden="true"
@@ -172,7 +165,6 @@ export default function Roleta({
         </svg>
       </div>
 
-      {/* Roda que gira (gomos, aro e miolo) */}
       <motion.div
         className="absolute inset-0"
         style={{ rotate: rotacao, transformOrigin: "50% 50%" }}
@@ -181,7 +173,7 @@ export default function Roleta({
           viewBox="0 0 300 300"
           className="h-full w-full drop-shadow-[0_16px_34px_rgba(13,33,55,0.22)]"
           role="img"
-          aria-label="Roleta de pilares de saude mental"
+          aria-label="Roleta de temas de saude mental"
         >
           <defs>
             <linearGradient id="aroGrad" x1="0" y1="0" x2="0.4" y2="1">
@@ -207,24 +199,24 @@ export default function Roleta({
             opacity="0.85"
           />
 
-          {PILARES.map((pilar, i) => {
-            const ligado = ativo(pilar);
-            return (
+          {n === 1 ? (
+            <circle cx={CX} cy={CY} r={R} fill={CORES_PILAR[pilares[0]]} />
+          ) : (
+            pilares.map((pilar, i) => (
               <path
                 key={pilar}
-                d={caminhoSetor(i)}
+                d={caminhoSetor(i, passo)}
                 fill={CORES_PILAR[pilar]}
                 stroke="#ffffff"
                 strokeWidth="2"
-                opacity={ligado ? 1 : 0.25}
                 style={{
                   filter:
                     foco === i ? "brightness(1.12) saturate(1.15)" : undefined,
                   transition: "filter 0.25s",
                 }}
               />
-            );
-          })}
+            ))
+          )}
 
           <circle cx={CX} cy={CY} r={R} fill="url(#brilhoGomo)" pointerEvents="none" />
 
@@ -234,28 +226,26 @@ export default function Roleta({
         </svg>
       </motion.div>
 
-      {/* Rotulos: orbitam com a roda, mas sempre em pe */}
       <svg
         viewBox="0 0 300 300"
         className="pointer-events-none absolute inset-0 h-full w-full"
         aria-hidden="true"
       >
-        {PILARES.map((pilar, i) => (
+        {pilares.map((pilar, i) => (
           <Rotulo
             key={pilar}
             rotacao={rotacao}
             indice={i}
+            passo={passo}
             pilar={pilar}
-            ativo={ativo(pilar)}
           />
         ))}
       </svg>
 
-      {/* Botao central GIRAR */}
       <button
         type="button"
         onClick={girar}
-        disabled={girando || pilaresAtivos.length === 0}
+        disabled={girando || n === 0}
         aria-label="Girar a roleta"
         className={`absolute left-1/2 top-1/2 z-10 flex h-[4.6rem] w-[4.6rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-serena-dourado bg-serena-azul text-base font-bold uppercase tracking-[0.14em] text-serena-dourado outline-none transition disabled:cursor-not-allowed disabled:opacity-60 ${
           girando ? "" : "respiro hover:scale-[1.05]"
