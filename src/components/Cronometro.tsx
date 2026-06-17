@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { sinalFim } from "@/lib/som";
+import { sinalCinco, sinalFim } from "@/lib/som";
 
 const RAIO = 120;
 const CIRC = 2 * Math.PI * RAIO;
@@ -18,6 +18,7 @@ export default function Cronometro({ mudo }: Props) {
   const [rodando, setRodando] = useState(false);
   const tickRef = useRef<number | null>(null);
   const fimRef = useRef(false);
+  const cincoRef = useRef(false);
 
   useEffect(() => {
     if (!rodando) return;
@@ -27,6 +28,10 @@ export default function Cronometro({ mudo }: Props) {
       const passado = (Date.now() - inicio) / 1000;
       const novo = Math.max(0, base - passado);
       setRestante(novo);
+      if (novo <= 5 && novo > 0 && !cincoRef.current) {
+        cincoRef.current = true;
+        if (!mudo) sinalCinco();
+      }
       if (novo <= 0) {
         setRodando(false);
         if (!fimRef.current) {
@@ -42,7 +47,10 @@ export default function Cronometro({ mudo }: Props) {
   }, [rodando]);
 
   function iniciar() {
-    if (restante <= 0) setRestante(total);
+    if (restante <= 0) {
+      setRestante(total);
+      cincoRef.current = false;
+    }
     fimRef.current = false;
     setRodando(true);
   }
@@ -54,12 +62,14 @@ export default function Cronometro({ mudo }: Props) {
   function reiniciar() {
     setRodando(false);
     fimRef.current = false;
+    cincoRef.current = false;
     setRestante(total);
   }
 
   function trocarDuracao(d: number) {
     setRodando(false);
     fimRef.current = false;
+    cincoRef.current = false;
     setTotal(d);
     setRestante(d);
   }

@@ -41,6 +41,13 @@ export function clique() {
   beep(880, 0.04, 0.05);
 }
 
+// Alerta de contagem regressiva: faltando 5 segundos. Dois toques curtos
+// e mais audiveis para avisar quem esta gravando.
+export function sinalCinco() {
+  beep(990, 0.16, 0.1);
+  window.setTimeout(() => beep(990, 0.16, 0.1), 230);
+}
+
 // Sinal suave ao zerar o cronometro.
 export function sinalFim() {
   beep(660, 0.18, 0.08);
